@@ -273,11 +273,12 @@
             font-size: 14px;
         }
         
-        /* Focus state: inner 1px + outer 2px border */
         input#nameFilter:focus {
             border: 1px solid #000;      /* inner line stays the same */
             border-radius: 0;
             box-sizing: border-box;
+            outline: none;                /* removes browser focus highlight */
+
         }
 
     </style>
