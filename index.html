@@ -267,10 +267,18 @@
         input#nameFilter {
             margin: 10px 0;
             padding: 6px;
-            width: 100%;
-            border: 3px double #000000; /* double border style */
-            border-radius: 0;           /* remove rounded corners */
-            box-sizing: border-box;     /* ensure padding is included in width */
+            width: 100%;              /* full width of the container */
+            border: 1px solid #000;   /* normal state: single 1px black border */
+            border-radius: 4px;       /* optional: slight rounding in normal state */
+            box-sizing: border-box;   /* ensures padding is included in width */
+            font-size: 14px;
+        }
+        
+        /* Focus/selected state */
+        input#nameFilter:focus {
+            border: 3px double #000;  /* double black border */
+            border-radius: 0;          /* no rounding */
+            outline: none;             /* remove default browser outline */
         }
 
     </style>
