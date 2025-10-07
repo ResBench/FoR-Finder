@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoR Finder by ResBench</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10+Charted&family=Jersey+10&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="Logo 1.png" type="image/png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <style>
+        html {
+            font-size: 14px;
+        }
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h3 {
+            font-family: 'Jersey 10', sans-serif;
+            cursor: pointer;
+            font-size: 1.6rem; /* Equivalent to 24px */
+            font-weight: normal;
+        }
+        h3.open {
+            font-size: 1.6rem; /* Equivalent to 24px */
+        }
+        h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem; /* Equivalent to 20px */
+        }
+        *, *::before, *::after {
+            box-sizing: inherit; /* Ensure consistent box-sizing */
+        }
+        .banner-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+        }
+        .banner {
+            width: 100%;
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+        .banner-title {
+            display: block;
+            position: absolute;
+            color: white;
+            margin: 0;
+            padding-left: 20px;
+        }
+        .banner-title.h1 {
+            top: 40px;
+            left: 20px;
+            font-family: 'Jersey 10', sans-serif;
+            font-weight: normal;
+            font-size: 3rem;
+            max-width: 80vw; /* 80% of the viewport width */
+        }
+        .banner-title.h2 {
+            top: 160px;
+            left: 20px;
+            font-family: 'Jersey 10 Charted', sans-serif;
+            font-weight: normal;
+            font-size: 1.6rem;   /* Equivalent to 32px */
+        }
+        .banner-title.h2 .h1-style {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .container {
+            margin: 20px;
+        }
+        .row {
+            margin-bottom: 15px;
+        }
+        .row label {
+            display: block;
+            margin-bottom: 5px; /* Space between label and input */
+        }
+        .row select {
+            width: 100%; /* Make select and input fields full-width */
+            padding: 8px;
+            box-sizing: border-box; /* Include padding in width */
+            font-size: 1rem; /* 16px */
+        }
+        .row input {
+            flex: 1; /* Take up half of the row width */
+            margin-right: 10px; /* Space between input and validation result */
+            padding: 8px;
+            box-sizing: border-box; /* Include padding in width */
+            font-size: 1rem; /* 16px */
+        }
+        .row .validation-result {
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* Prevents table from growing based on content */
+            display: none; /* Hide the table initially */
+        }
+        
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            word-wrap: break-word; /* Prevent long text from expanding the table */
+        }
+        
+        th {
+            background-color: #808080;
+            font-weight: bold;
+        }
+        button {
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;   /* Equivalent to 16px */
+            margin: 4px 2px;
+            cursor: pointer;
+            background-color: #000000; /* Default button color */
+        }
+        button.disabled {
+            opacity: 0.6;
+        }
+        .validation-result {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .validation-result.valid {
+            color: green;
+        }
+        .validation-result.invalid {
+            color: red;
+        }
+        .content {
+            display: none;
+            max-width: 100%; /* Ensure content doesn't exceed its container */
+            overflow-x: auto; /* Prevent horizontal scrolling if content overflows */
+        }
+        .content p, .content ol {
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            font-size: 1rem;   /* Equivalent to 16px */
+        }        
+        
+        .arrow {
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform 0.2s ease;
+        }
+        
+        h3.open .arrow {
+            transform: rotate(90deg);
+        }
+        .warning-message {
+            background-color: darkorange;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            display: none; /* Initially hidden */
+        }
+        .floating-logo {
+            position: fixed;
+            top: 15px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.5; /* Slightly translucent */
+        }
+        
+        .floating-logo:hover {
+            transform: scale(1.2);
+            opacity: 0.8; /* Fully opaque on hover */
+        }
+        .floating-logo-coffee {
+            position: fixed;
+            top: 115px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.5; /* Slightly translucent */
+        }
+        
+        .floating-logo-coffee:hover {
+            transform: scale(1.2);
+            opacity: 0.8; /* Fully opaque on hover */
+        }
+        @media (max-width: 600px) {
+            .banner-title.h1 {
+                font-size: 1.8rem; /* Reduce h1 size on mobile devices */
+            }
+            .banner-title.h2 {
+                font-size: 1.5rem; /* Adjust h2 size for mobile if necessary */
+            }
+            .banner-title.h2 .h1-style {
+                font-family: 'Montserrat', sans-serif;
+                font-weight: 700;
+                font-size: 1.2rem;
+            }
+            h3 {
+                font-size: 1.2rem; /* Adjust h3 size for mobile */
+            }
+            h3.open {
+                font-size: 1.2rem; /* Adjust h3 size for mobile */
+            }
+            h4 {
+                font-size: 1rem; /* Adjust h4 size for mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner-container">
+        <img src="Banner 2.png" alt="Banner Image" class="banner">
+        <h1 class="banner-title h1">FoR Finder</h1>
+        <h2 class="banner-title h2"><span class="h1-style">Created by&nbsp;</span>&nbsp;ResBench&nbsp;</h2>
+    </div>
+      
+    <div class="container">
+        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Purpose</h3>
+        <div class="content">
+            <p>Identify Fields of Research (FoR) Field codes by filtering by keyword.</p>
+        </div>
+        
+        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Background</h3>
+        <div class="content" style="display: none;">
+            <p>The ARC is a Commonwealth entity that supports knowledge gain and innovation for the Australian community by funding high-quality research. It operates the National Competitive Grants Program (NCGP).</p>
+        
+            <p>X.</p>
+        </div>
+        
+        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Sources</h3>
+        <div class="content" style="display: none;">
+            <ol>
+                <li>Australian Research Council. (n.d.). <i>FAQs: Medical Research Advisory Group</i>. Australian Research Council. Retrieved September 29, 2024, from <a href="https://www.arc.gov.au/about-arc/program-policies/medical-research-policy/arc-medical-research-policy/faqs-medical-research-advisory-group">https://www.arc.gov.au/about-arc/program-policies/medical-research-policy/arc-medical-research-policy/faqs-medical-research-advisory-group</a>.</li>
+                <li>Australian Research Council. (n.d.). <i>Medical Research Policy</i>. Australian Research Council. Retrieved September 29, 2024, from <a href="https://www.arc.gov.au/about-arc/program-policies/medical-research-policy">https://www.arc.gov.au/about-arc/program-policies/medical-research-policy</a>.</li>
+            </ol>
+        </div>
+    </div>
+
+    
+    <div class="container">
+        
+        <div class="row">
+          <input type="text" id="nameFilter" placeholder="Filter by name..." style="margin:10px; padding:5px; width: 300px;">
+        </div>
+
+        <div class="row">
+
+          <table id="resultsTable" border="1" style="width:100%; border-collapse: collapse; display:none;">
+              <thead>
+                  <tr>
+                      <th>#</th>
+                      <th>2008 Code</th>
+                      <th>2008 Name</th>
+                      <th>2020 Code</th>
+                      <th>2020 Name</th>
+                      <th>Partial?</th>
+                  </tr>
+              </thead>
+              <tbody></tbody>
+          </table>
+
+        </div>
+    </div>
+
+  <script type="text/javascript">
+      let concordances = {};
+      let allRecords = [];
+  
+      async function loadConcordances(csvData) {
+          const results = Papa.parse(csvData, { header: true, skipEmptyLines: true });
+          allRecords = results.data.map(row => {
+              let pastCode = row['ANZSRC 2008 Code'];
+              if (pastCode.length === 5) pastCode = '0' + pastCode;
+  
+              const currentCode = row['ANZSRC 2020 Code'];
+              const isPartialMatch = row['Partial Match'] === 'p' ? 'Yes' : 'No';
+  
+              return {
+                  'ANZSRC 2008 FoR Field Code': pastCode,
+                  'ANZSRC 2008 FoR Field Code Name': row['ANZSRC 2008 Name'],
+                  'ANZSRC 2020 FoR Field Code': currentCode,
+                  'ANZSRC 2020 FoR Field Code Name': row['ANZSRC 2020 Name'],
+                  'Partial Correspondences': isPartialMatch
+              };
+          });
+  
+          concordances = allRecords;
+          displayTable(allRecords);
+      }
+  
+      async function fetchCSV() {
+          // You can swap file names here if needed
+          const response = await fetch('Correspondences2008.csv');
+          return await response.text();
+      }
+  
+      function displayTable(records) {
+          const table = document.querySelector('#resultsTable');
+          const tbody = table.querySelector('tbody');
+          tbody.innerHTML = '';
+  
+          records.forEach((rec, index) => {
+              const row = tbody.insertRow();
+              row.innerHTML = `
+                  <td>${index + 1}</td>
+                  <td>${rec['ANZSRC 2008 FoR Field Code']}</td>
+                  <td>${rec['ANZSRC 2008 FoR Field Code Name']}</td>
+                  <td>${rec['ANZSRC 2020 FoR Field Code']}</td>
+                  <td>${rec['ANZSRC 2020 FoR Field Code Name']}</td>
+                  <td>${rec['Partial Correspondences']}</td>
+              `;
+          });
+  
+          table.style.display = records.length ? 'table' : 'none';
+      }
+  
+      function filterByName(query) {
+          query = query.toLowerCase();
+          const filtered = allRecords.filter(rec =>
+              rec['ANZSRC 2008 FoR Field Code Name'].toLowerCase().includes(query) ||
+              rec['ANZSRC 2020 FoR Field Code Name'].toLowerCase().includes(query)
+          );
+          displayTable(filtered);
+      }
+  
+      document.addEventListener("DOMContentLoaded", async () => {
+          const csvData = await fetchCSV();
+          await loadConcordances(csvData);
+  
+          // Add filter input listener
+          const nameFilterInput = document.getElementById('nameFilter');
+          nameFilterInput.addEventListener('input', (e) => {
+              filterByName(e.target.value);
+          });
+      });
+  </script>
+
+
+<a href="https://bsky.app/profile/resbench.bsky.social" target="_blank">
+    <img src="Logo 1.png" alt="Logo" class="floating-logo">
+</a>
+
+<a href="https://buymeacoffee.com/resbench" target="_blank">
+    <img src="bmc-logo-yellow.png" alt="Logo" class="floating-logo-coffee">
+</a>
+
+</body>
+</html>
