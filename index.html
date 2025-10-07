@@ -263,23 +263,25 @@
       th:nth-child(3), td:nth-child(3) { width: 15%; }  /* 2008 Code */
       th:nth-child(4), td:nth-child(4) { width: 35%; }  /* 2008 Name */
     
+        /* Base state */
         input#nameFilter {
             margin: 0 0;
             padding: 6px;
-            width: 100%;              /* full width of the container */
-            border: 1px solid #000;   /* normal state: single 1px black border */
-            box-sizing: border-box;   /* ensures padding is included in width */
+            width: 100%;
+            border: 1px solid #000;  /* normal 1px border */
+            box-sizing: border-box;   /* includes border in width */
             font-size: 14px;
+            height: 36px;             /* fix height so focus state won't move elements */
         }
         
-        /* Focus/selected state */
+        /* Focus state */
         input#nameFilter:focus {
-            border: 3px double #000;  /* double black border */
-            border-radius: 0;          /* no rounding */
-            outline: none;             /* remove default browser outline */
-            box-sizing: border-box;   /* keeps total size the same */
-
+            border: 1px solid #000;      /* keep inner border same */
+            border-radius: 0;
+            outline: 3px solid #000;     /* outer 3px line, doesn't affect layout */
+            box-sizing: border-box;
         }
+
 
     </style>
 
