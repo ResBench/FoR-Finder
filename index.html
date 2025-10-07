@@ -232,142 +232,162 @@
     </style>
 </head>
 <body>
-    <div class="banner-container">
-        <img src="Banner 2.png" alt="Banner Image" class="banner">
-        <h1 class="banner-title h1">FoR Finder</h1>
-        <h2 class="banner-title h2"><span class="h1-style">Created by&nbsp;</span>&nbsp;ResBench&nbsp;</h2>
-    </div>
-      
-    <div class="container">
-        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Purpose</h3>
-        <div class="content">
-            <p>Identify Fields of Research (FoR) Field codes by filtering by keyword.</p>
-        </div>
-        
-        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Background</h3>
-        <div class="content" style="display: none;">
-            <p>X.</p>
-        </div>
-        
-        <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Sources</h3>
-        <div class="content" style="display: none;">
-            <ol>
-                <li>Australian Bureau of Statistics. (n.d.). <i>Australian and New Zealand Standard Research Classification (ANZSRC): Latest release</i>. Australian Government. Retrieved September 11, 2024, from <a href="https://www.abs.gov.au/statistics/classifications/australian-and-new-zealand-standard-research-classification-anzsrc/latest-release">https://www.abs.gov.au/statistics/classifications/australian-and-new-zealand-standard-research-classification-anzsrc/latest-release</a>.</li>
-            </ol>
-        </div>
+  <div class="banner-container">
+    <img src="Banner 2.png" alt="Banner Image" class="banner">
+    <h1 class="banner-title h1">FoR Finder</h1>
+    <h2 class="banner-title h2"><span class="h1-style">Created by&nbsp;</span>&nbsp;ResBench&nbsp;</h2>
+  </div>
+
+  <div class="container">
+    <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Purpose</h3>
+    <div class="content">
+      <p>Identify Fields of Research (FoR) Field codes by filtering by keyword.</p>
     </div>
 
-    
-    <div class="container">
-        
-        <div class="row">
-          <input type="text" id="nameFilter" placeholder="Filter by name..." style="margin:10px; padding:5px; width: 300px;">
-        </div>
-
-        <div class="row">
-
-          <table id="resultsTable" border="1" style="width:100%; border-collapse: collapse; display:none;">
-              <thead>
-                  <tr>
-                      <th>#</th>
-                      <th>2008 Code</th>
-                      <th>2008 Name</th>
-                      <th>2020 Code</th>
-                      <th>2020 Name</th>
-                  </tr>
-              </thead>
-              <tbody></tbody>
-          </table>
-
-        </div>
+    <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Background</h3>
+    <div class="content" style="display: none;">
+      <p>X.</p>
     </div>
-    
+
+    <h3 onclick="toggleContent(this)"><span class="arrow">&#9654;</span> Sources</h3>
+    <div class="content" style="display: none;">
+      <ol>
+        <li>Australian Bureau of Statistics. (n.d.). 
+          <i>Australian and New Zealand Standard Research Classification (ANZSRC): Latest release</i>. 
+          Australian Government. Retrieved September 11, 2024, from 
+          <a href="https://www.abs.gov.au/statistics/classifications/australian-and-new-zealand-standard-research-classification-anzsrc/latest-release" target="_blank">
+            https://www.abs.gov.au/statistics/classifications/australian-and-new-zealand-standard-research-classification-anzsrc/latest-release
+          </a>.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <input type="text" id="nameFilter" placeholder="Filter by 2020 name..." style="margin:10px; padding:5px; width:300px;">
+    </div>
+
+    <div class="row">
+      <table id="resultsTable" border="1" style="width:100%; border-collapse: collapse; display:none;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>2020 Code</th>
+            <th>2020 Name</th>
+            <th class="greyed">2008 Code</th>
+            <th class="greyed">2008 Name</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PapaParse CSV parser -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
+  <style>
+    /* Grey-out the 2008 columns */
+    .greyed {
+      color: gray;
+      background-color: #f9f9f9;
+    }
+
+    #resultsTable td.greyed {
+      color: gray;
+    }
+
+    #resultsTable th {
+      background-color: #f0f0f0;
+      text-align: left;
+      padding: 8px;
+    }
+
+    #resultsTable td {
+      padding: 6px;
+      border: 1px solid #ddd;
+    }
+
+    #resultsTable tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+  </style>
+
   <script type="text/javascript">
+    function toggleContent(header) {
+      var content = header.nextElementSibling;
+      var arrow = header.querySelector('.arrow');
+      if (content.style.display === "none" || content.style.display === "") {
+        content.style.display = "block";
+      } else {
+        content.style.display = "none";
+      }
+      header.classList.toggle('open');
+    }
 
-        function toggleContent(header) {
-            var content = header.nextElementSibling;
-            var arrow = header.querySelector('.arrow');
-            if (content.style.display === "none" || content.style.display === "") {
-                content.style.display = "block";
-            } else {
-                content.style.display = "none";
-            }
-            header.classList.toggle('open');
-        }
-      
-      let concordances = {};
-      let allRecords = [];
-  
-      async function loadConcordances(csvData) {
-          const results = Papa.parse(csvData, { header: true, skipEmptyLines: true });
-          allRecords = results.data.map(row => {
-              let pastCode = row['ANZSRC 2008 Code'];
-              if (pastCode.length === 5) pastCode = '0' + pastCode;
-  
-              const currentCode = row['ANZSRC 2020 Code'];
-              const isPartialMatch = row['Partial Match'] === 'p' ? 'Yes' : 'No';
-  
-              return {
-                  'ANZSRC 2008 FoR Field Code': pastCode,
-                  'ANZSRC 2008 FoR Field Code Name': row['ANZSRC 2008 Name'],
-                  'ANZSRC 2020 FoR Field Code': currentCode,
-                  'ANZSRC 2020 FoR Field Code Name': row['ANZSRC 2020 Name'],
-              };
-          });
-  
-          concordances = allRecords;
-          displayTable(allRecords);
-      }
-  
-      async function fetchCSV() {
-          // You can swap file names here if needed
-          const response = await fetch('Correspondences2008.csv');
-          return await response.text();
-      }
-  
-      function displayTable(records) {
-          const table = document.querySelector('#resultsTable');
-          const tbody = table.querySelector('tbody');
-          tbody.innerHTML = '';
-  
-          records.forEach((rec, index) => {
-              const row = tbody.insertRow();
-              row.innerHTML = `
-                  <td>${index + 1}</td>
-                  <td>${rec['ANZSRC 2008 FoR Field Code']}</td>
-                  <td>${rec['ANZSRC 2008 FoR Field Code Name']}</td>
-                  <td>${rec['ANZSRC 2020 FoR Field Code']}</td>
-                  <td>${rec['ANZSRC 2020 FoR Field Code Name']}</td>
-                  <td>${rec['Partial Correspondences']}</td>
-              `;
-          });
-  
-          table.style.display = records.length ? 'table' : 'none';
-      }
-  
-      function filterByName(query) {
-          query = query.toLowerCase();
-          const filtered = allRecords.filter(rec =>
-              rec['ANZSRC 2008 FoR Field Code Name'].toLowerCase().includes(query) ||
-              rec['ANZSRC 2020 FoR Field Code Name'].toLowerCase().includes(query)
-          );
-          displayTable(filtered);
-      }
-  
-      document.addEventListener("DOMContentLoaded", async () => {
-          const csvData = await fetchCSV();
-          await loadConcordances(csvData);
-  
-          // Add filter input listener
-          const nameFilterInput = document.getElementById('nameFilter');
-          nameFilterInput.addEventListener('input', (e) => {
-              filterByName(e.target.value);
-          });
+    let allRecords = [];
+
+    async function fetchCSV() {
+      const response = await fetch('Correspondences2020.csv'); // ✅ Always load 2020 CSV
+      return await response.text();
+    }
+
+    async function loadConcordances(csvData) {
+      const results = Papa.parse(csvData, { header: true, skipEmptyLines: true });
+      allRecords = results.data.map(row => {
+        let pastCode = row['ANZSRC 2008 Code'];
+        if (pastCode && pastCode.length === 5) pastCode = '0' + pastCode;
+        const currentCode = row['ANZSRC 2020 Code'];
+
+        return {
+          'ANZSRC 2020 FoR Field Code': currentCode,
+          'ANZSRC 2020 FoR Field Code Name': row['ANZSRC 2020 Name'],
+          'ANZSRC 2008 FoR Field Code': pastCode,
+          'ANZSRC 2008 FoR Field Code Name': row['ANZSRC 2008 Name']
+        };
       });
-  </script>
 
+      displayTable(allRecords);
+    }
+
+    function displayTable(records) {
+      const table = document.querySelector('#resultsTable');
+      const tbody = table.querySelector('tbody');
+      tbody.innerHTML = '';
+
+      records.forEach((rec, index) => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${rec['ANZSRC 2020 FoR Field Code']}</td>
+          <td>${rec['ANZSRC 2020 FoR Field Code Name']}</td>
+          <td class="greyed">${rec['ANZSRC 2008 FoR Field Code'] || ''}</td>
+          <td class="greyed">${rec['ANZSRC 2008 FoR Field Code Name'] || ''}</td>
+        `;
+      });
+
+      table.style.display = records.length ? 'table' : 'none';
+    }
+
+    function filterByName(query) {
+      query = query.toLowerCase();
+      const filtered = allRecords.filter(rec =>
+        rec['ANZSRC 2020 FoR Field Code Name'].toLowerCase().includes(query)
+      );
+      displayTable(filtered);
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const csvData = await fetchCSV();
+      await loadConcordances(csvData);
+
+      const nameFilterInput = document.getElementById('nameFilter');
+      nameFilterInput.addEventListener('input', (e) => {
+        filterByName(e.target.value);
+      });
+    });
+  </script>
 
 <a href="https://bsky.app/profile/resbench.bsky.social" target="_blank">
     <img src="Logo 1.png" alt="Logo" class="floating-logo">
