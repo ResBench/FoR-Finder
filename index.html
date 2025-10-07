@@ -264,12 +264,15 @@
       th:nth-child(3), td:nth-child(3) { width: 15%; }  /* 2008 Code */
       th:nth-child(4), td:nth-child(4) { width: 35%; }  /* 2008 Name */
     
-      input#nameFilter {
-          margin: 10px 0;
-          padding: 6px;
-          width: 100%;
-          border: 1px solid #000000;
-      }
+        input#nameFilter {
+            margin: 10px 0;
+            padding: 6px;
+            width: 100%;
+            border: 3px double #000000; /* double border style */
+            border-radius: 0;           /* remove rounded corners */
+            box-sizing: border-box;     /* ensure padding is included in width */
+        }
+
     </style>
 
 
