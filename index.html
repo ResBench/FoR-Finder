@@ -226,27 +226,47 @@
   <!-- PapaParse CSV parser -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <style>
-    .greyed {
-      color: gray;
-      background-color: #f9f9f9;
-    }
-    #resultsTable td.greyed {
-      color: gray;
-    }
-    #resultsTable th {
-      background-color: #f0f0f0;
-      text-align: left;
-      padding: 8px;
-    }
-    #resultsTable td {
-      padding: 6px;
-      border: 1px solid #ddd;
-    }
-    #resultsTable tr:nth-child(even) {
-      background-color: #fafafa;
-    }
-  </style>
+    <style>
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+      }
+    
+      th, td {
+          border: 1px solid black;
+          padding: 8px;
+          text-align: left;
+          word-wrap: break-word; /* Prevent long text from expanding the table */
+      }
+    
+      th {
+          background-color: #808080;
+          font-weight: bold;
+          color: white;
+      }
+    
+      tr:nth-child(even) {
+          background-color: #f9f9f9;
+      }
+    
+      tr:hover {
+          background-color: #f1f1f1;
+      }
+    
+      .greyed {
+          color: #555;
+          background-color: #e8e8e8;
+      }
+    
+      input#nameFilter {
+          margin: 10px 0;
+          padding: 6px;
+          width: 300px;
+          border: 1px solid #999;
+          border-radius: 4px;
+      }
+    </style>
 
   <script type="text/javascript">
     function toggleContent(header) {
