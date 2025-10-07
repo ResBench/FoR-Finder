@@ -78,72 +78,7 @@
         .container {
             margin: 20px;
         }
-        .row {
-            margin-bottom: 15px;
-        }
-        .row label {
-            display: block;
-            margin-bottom: 5px; /* Space between label and input */
-        }
-        .row select {
-            width: 100%; /* Make select and input fields full-width */
-            padding: 8px;
-            box-sizing: border-box; /* Include padding in width */
-            font-size: 1rem; /* 16px */
-        }
-        .row input {
-            flex: 1; /* Take up half of the row width */
-            margin-right: 10px; /* Space between input and validation result */
-            padding: 8px;
-            box-sizing: border-box; /* Include padding in width */
-            font-size: 1rem; /* 16px */
-        }
-        .row .validation-result {
-            flex-shrink: 0; /* Prevent shrinking */
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* Prevents table from growing based on content */
-            display: none; /* Hide the table initially */
-        }
-        
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-            word-wrap: break-word; /* Prevent long text from expanding the table */
-        }
-        
-        th {
-            background-color: #808080;
-            font-weight: bold;
-        }
-        button {
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 1rem;   /* Equivalent to 16px */
-            margin: 4px 2px;
-            cursor: pointer;
-            background-color: #000000; /* Default button color */
-        }
-        button.disabled {
-            opacity: 0.6;
-        }
-        .validation-result {
-            margin-left: 10px;
-            font-weight: bold;
-        }
-        .validation-result.valid {
-            color: green;
-        }
-        .validation-result.invalid {
-            color: red;
-        }
+
         .content {
             display: none;
             max-width: 100%; /* Ensure content doesn't exceed its container */
@@ -265,14 +200,18 @@
 
   <div class="container">
     <div class="row">
-      <input type="text" id="nameFilter" placeholder="Filter by 2020 name..." style="margin:10px; padding:5px; width:300px;">
+      <input 
+        type="text" 
+        id="nameFilter" 
+        placeholder="Filter by 2020 name..." 
+        style="margin:10px; padding:5px; width:300px;"
+      >
     </div>
 
     <div class="row">
-      <table id="resultsTable" border="1" style="width:100%; border-collapse: collapse; display:none;">
+      <table id="resultsTable" border="1" style="width:100%; border-collapse: collapse;">
         <thead>
           <tr>
-            <th>#</th>
             <th>2020 Code</th>
             <th>2020 Name</th>
             <th class="greyed">2008 Code</th>
@@ -288,27 +227,22 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
-    /* Grey-out the 2008 columns */
     .greyed {
       color: gray;
       background-color: #f9f9f9;
     }
-
     #resultsTable td.greyed {
       color: gray;
     }
-
     #resultsTable th {
       background-color: #f0f0f0;
       text-align: left;
       padding: 8px;
     }
-
     #resultsTable td {
       padding: 6px;
       border: 1px solid #ddd;
     }
-
     #resultsTable tr:nth-child(even) {
       background-color: #fafafa;
     }
@@ -328,56 +262,71 @@
 
     let allRecords = [];
 
+    // Fetch the 2020 concordance CSV
     async function fetchCSV() {
-      const response = await fetch('Correspondences2020.csv'); // ✅ Always load 2020 CSV
+      const response = await fetch('Correspondences2020.csv');
       return await response.text();
     }
 
+    // Clean text: remove surrounding quotes and trim spaces
+    function cleanText(text) {
+      return (text || '').replace(/^"|"$/g, '').trim();
+    }
+
+    // Load CSV data into memory
     async function loadConcordances(csvData) {
       const results = Papa.parse(csvData, { header: true, skipEmptyLines: true });
       allRecords = results.data.map(row => {
         let pastCode = row['ANZSRC 2008 Code'];
         if (pastCode && pastCode.length === 5) pastCode = '0' + pastCode;
         const currentCode = row['ANZSRC 2020 Code'];
-
         return {
           'ANZSRC 2020 FoR Field Code': currentCode,
-          'ANZSRC 2020 FoR Field Code Name': row['ANZSRC 2020 Name'],
+          'ANZSRC 2020 FoR Field Code Name': cleanText(row['ANZSRC 2020 Name']),
           'ANZSRC 2008 FoR Field Code': pastCode,
-          'ANZSRC 2008 FoR Field Code Name': row['ANZSRC 2008 Name']
+          'ANZSRC 2008 FoR Field Code Name': cleanText(row['ANZSRC 2008 Name'])
         };
       });
-
-      displayTable(allRecords);
+      // Do NOT display immediately — only header should show initially
+      displayTable([]);
     }
 
+    // Display rows in table
     function displayTable(records) {
       const table = document.querySelector('#resultsTable');
       const tbody = table.querySelector('tbody');
       tbody.innerHTML = '';
 
-      records.forEach((rec, index) => {
+      records.forEach(rec => {
         const row = tbody.insertRow();
         row.innerHTML = `
-          <td>${index + 1}</td>
           <td>${rec['ANZSRC 2020 FoR Field Code']}</td>
           <td>${rec['ANZSRC 2020 FoR Field Code Name']}</td>
           <td class="greyed">${rec['ANZSRC 2008 FoR Field Code'] || ''}</td>
           <td class="greyed">${rec['ANZSRC 2008 FoR Field Code Name'] || ''}</td>
         `;
       });
-
-      table.style.display = records.length ? 'table' : 'none';
     }
 
+    // Filter by multiple keywords (AND logic)
     function filterByName(query) {
-      query = query.toLowerCase();
-      const filtered = allRecords.filter(rec =>
-        rec['ANZSRC 2020 FoR Field Code Name'].toLowerCase().includes(query)
-      );
+      const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+      if (words.length === 0) {
+        displayTable([]); // Empty → hide rows
+        return;
+      }
+
+      const filtered = allRecords.filter(rec => {
+        const fieldName = rec['ANZSRC 2020 FoR Field Code Name'].toLowerCase();
+        // Each word must appear somewhere in the name
+        return words.every(w => fieldName.includes(w));
+      });
+
       displayTable(filtered);
     }
 
+    // Initialize
     document.addEventListener("DOMContentLoaded", async () => {
       const csvData = await fetchCSV();
       await loadConcordances(csvData);
@@ -388,6 +337,7 @@
       });
     });
   </script>
+
 
 <a href="https://bsky.app/profile/resbench.bsky.social" target="_blank">
     <img src="Logo 1.png" alt="Logo" class="floating-logo">
