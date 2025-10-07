@@ -271,19 +271,17 @@
             border: 1px solid #000;      /* inner line */
             box-sizing: border-box;
             font-size: 14px;
-            height: 36px;                /* fixed total height */
+            height: 36px;                /* fixed height so layout doesn't shift */
         }
         
-        /* Focus state: double border */
+        /* Focus state: inner 1px + outer 2px border */
         input#nameFilter:focus {
-            border: 1px solid #000;      /* inner line */
+            border: 1px solid #000;      /* inner line stays the same */
             border-radius: 0;
-            outline: 3px solid #000;     /* outer line */
-            outline-offset: -4px;        /* moves the outer line over the border */
+            outline: 2px solid #000;     /* outer line thicker */
+            outline-offset: -3px;        /* negative offset = outline sits outside inner border */
             box-sizing: border-box;
         }
-
-
 
     </style>
 
