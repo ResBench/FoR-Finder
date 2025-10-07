@@ -230,6 +230,7 @@
       table {
           width: 100%;
           border-collapse: collapse;
+          table-layout: fixed; /* Fix column widths */
           margin-top: 10px;
       }
     
@@ -237,7 +238,7 @@
           border: 1px solid black;
           padding: 8px;
           text-align: left;
-          word-wrap: break-word; /* Prevent long text from expanding the table */
+          word-wrap: break-word; /* Wrap long text */
       }
     
       th {
@@ -259,6 +260,12 @@
           background-color: #e8e8e8;
       }
     
+      /* Set fixed widths for columns */
+      th:nth-child(1), td:nth-child(1) { width: 15%; }  /* 2020 Code */
+      th:nth-child(2), td:nth-child(2) { width: 35%; }  /* 2020 Name */
+      th:nth-child(3), td:nth-child(3) { width: 15%; }  /* 2008 Code */
+      th:nth-child(4), td:nth-child(4) { width: 35%; }  /* 2008 Name */
+    
       input#nameFilter {
           margin: 10px 0;
           padding: 6px;
@@ -267,6 +274,7 @@
           border-radius: 4px;
       }
     </style>
+
 
   <script type="text/javascript">
     function toggleContent(header) {
