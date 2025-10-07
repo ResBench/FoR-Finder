@@ -281,8 +281,22 @@
 
         </div>
     </div>
+    
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script type="text/javascript">
+
+        function toggleContent(header) {
+            var content = header.nextElementSibling;
+            var arrow = header.querySelector('.arrow');
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+            header.classList.toggle('open');
+        }
+      
       let concordances = {};
       let allRecords = [];
   
@@ -300,7 +314,6 @@
                   'ANZSRC 2008 FoR Field Code Name': row['ANZSRC 2008 Name'],
                   'ANZSRC 2020 FoR Field Code': currentCode,
                   'ANZSRC 2020 FoR Field Code Name': row['ANZSRC 2020 Name'],
-                  'Partial Correspondences': isPartialMatch
               };
           });
   
