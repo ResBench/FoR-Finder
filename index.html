@@ -247,18 +247,16 @@
           color: white;
       }
     
-      tr:nth-child(even) {
-          background-color: #f9f9f9;
-      }
-    
       tr:hover {
           background-color: #f1f1f1;
       }
     
-      .greyed {
-          color: #555;
-          background-color: #e8e8e8;
-      }
+        /* Greyed 2008 columns for data cells only, skip header */
+        td.greyed {
+            color: #555;
+            background-color: #e8e8e8;
+        }
+
     
       /* Set fixed widths for columns */
       th:nth-child(1), td:nth-child(1) { width: 15%; }  /* 2020 Code */
